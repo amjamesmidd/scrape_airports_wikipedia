@@ -9,7 +9,6 @@ def generate_url(state):
     state_url = state.replace(' ', '_')
     return f'https://en.wikipedia.org/wiki/List_of_airports_in_{state_url}'
 
-
 def extract_airports(state):
 
     url = generate_url(state)
