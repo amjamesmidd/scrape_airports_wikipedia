@@ -9,7 +9,7 @@ def generate_url(state):
     state_url = state.replace(' ', '_')
     return f'https://en.wikipedia.org/wiki/List_of_airports_in_{state_url}'
 
-def extract_airports(state):
+def extract_airports(state, filename):
 
     url = generate_url(state)
 
@@ -20,7 +20,7 @@ def extract_airports(state):
     
     soup = BeautifulSoup(response.text, 'html.parser')
 
-    filename = f'airports_{state.lower()}.csv'
+    
 
     with open(filename, mode = 'w', newline = '', encoding = 'utf-8') as file:
         writer = csv.writer(file)
@@ -44,7 +44,7 @@ def extract_airports(state):
             code = columns[1].get_text(strip = True)
             airport = columns[4].get_text(strip = True)
 
-            link_tag = columns[0].find('a')
+            link_tag = columns[4].find('a')
             if link_tag:
                 link = f"https://en.wikipedia.org{link_tag['href']}".replace(',', '') 
             else: link = 'NA'
@@ -56,5 +56,8 @@ def extract_airports(state):
 
 
 if __name__ == "__main__":
+
+    filename = "/Users/alliej/Documents/cafe/scrape_airports_wikipedia/example data/airports_missouri.csv"
+
     state_name = input("Enter the state name (e.g., Maryland, Minnesota): ")
-    extract_airports(state_name)
+    extract_airports(state_name, filename)

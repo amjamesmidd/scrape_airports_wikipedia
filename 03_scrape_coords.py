@@ -28,7 +28,10 @@ def scrape_skyvector(airport_code, airport_name):
 
         if response.status_code != 200:  # If the second attempt also fails, return None
             print(f"Error: Could not retrieve data for airport code {airport_code} using both URLs.")
-            return None, None, 9999
+            return None, None, 9999, None
+        sv_url = url2
+    else:
+        sv_url = url1
         
     
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -50,7 +53,7 @@ def scrape_skyvector(airport_code, airport_name):
     except (AttributeError, IndexError):
         activation_year = 9999
 
-    return lat, lon, activation_year
+    return lat, lon, activation_year, sv_url
 
 
 
@@ -58,7 +61,7 @@ def process_airport_csv(input_csv, output_csv):
 
     with open(input_csv, mode='r', newline='', encoding='utf-8') as infile:
         reader = csv.DictReader(infile)
-        fieldnames = reader.fieldnames + ['Latitude', 'Longitude', 'Activation Year']
+        fieldnames = reader.fieldnames + ['Latitude', 'Longitude', 'Activation Year', 'Wiki URL', 'SV URL']
 
     
         with open(output_csv, mode='w', newline='', encoding='utf-8') as outfile:
@@ -71,12 +74,16 @@ def process_airport_csv(input_csv, output_csv):
                     airport_name = row['Airport']
                     
                     if airport_code:  # Only process if there's a valid code
-                        lat, lon, activation_year = scrape_skyvector(airport_code, airport_name)
+                        lat, lon, activation_year, sv_url = scrape_skyvector(airport_code, airport_name)
+
+                        wiki_url = f"https://en.wikipedia.org/wiki/{airport_name.replace(' ', '_')}"
+                        row['Wiki URL'] = wiki_url
 
                         # Add the scraped data to the row
                         row['Latitude'] = lat
                         row['Longitude'] = lon
                         row['Activation Year'] = activation_year
+                        row['SV URL'] = sv_url
 
                     # Write the updated row to the output CSV
                     writer.writerow(row)
