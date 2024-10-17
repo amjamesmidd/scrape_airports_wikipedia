@@ -91,9 +91,12 @@ def process_airport_csv(input_csv, output_csv):
     print(f"Data saved to {output_csv}")
 
 if __name__ == "__main__":
-    input_csv = "/Users/alliej/Documents/cafe/scrape_airports_wikipedia/example data/airports_missouri.csv"  # Replace with your input CSV file
-    output_csv = "/Users/alliej/Documents/cafe/scrape_airports_wikipedia/example data/airports_missouri_coords.csv"
-    
+
+    state_name = input("Enter the state name (e.g., Maryland, Minnesota): ")
+    input_csv = f'/Users/alliej/Desktop/bu/airports/example_data/{state_name}_airports.csv'
+
+    output_csv = f'/Users/alliej/Desktop/bu/airports/example_data/{state_name}_coords.csv'
+
     process_airport_csv(input_csv, output_csv)
 
     

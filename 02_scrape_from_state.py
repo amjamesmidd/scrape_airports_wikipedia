@@ -56,8 +56,7 @@ def extract_airports(state, filename):
 
 
 if __name__ == "__main__":
+    state_name = input("Enter the state name (e.g., Minnesota, North_Carolina) with underscores instead of spaces: ")
+    filename = f'/Users/alliej/Desktop/bu/airports/example_data/{state_name}_airports.csv'
 
-    filename = "/Users/alliej/Documents/cafe/scrape_airports_wikipedia/example data/airports_missouri.csv"
-
-    state_name = input("Enter the state name (e.g., Maryland, Minnesota): ")
     extract_airports(state_name, filename)
