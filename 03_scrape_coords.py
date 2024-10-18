@@ -14,26 +14,17 @@ def clean_airport_name(name):
     name = re.sub(r"\s+", "-", name)  # Replace spaces and other separators with dashes
     return name.strip()
 
-def scrape_skyvector(airport_code, airport_name):
+def scrape_skyvector(airport_url):
 
     # First URL attempt
-    url1 = f"https://skyvector.com/airport/{airport_code}"
+    url1 = f"{airport_url}"
 
     response = requests.get(url1)
     if response.status_code != 200:
-        print(f"Error: Could not retrieve data for airport code {airport_code}")
-        cleaned_name = clean_airport_name(airport_name)
-        url2 = f"https://skyvector.com/airport/{airport_code}/{cleaned_name}"
-        response = requests.get(url2)
-
-        if response.status_code != 200:  # If the second attempt also fails, return None
-            print(f"Error: Could not retrieve data for airport code {airport_code} using both URLs.")
-            return None, None, 9999, None
-        sv_url = url2
-    else:
-        sv_url = url1
+        print(f"Error: Could not retrieve data for airport code {airport_url}")
+        return None, None, 9999, None
         
-    
+        
     soup = BeautifulSoup(response.text, 'html.parser')
 
     try:
@@ -53,7 +44,7 @@ def scrape_skyvector(airport_code, airport_name):
     except (AttributeError, IndexError):
         activation_year = 9999
 
-    return lat, lon, activation_year, sv_url
+    return lat, lon, activation_year
 
 
 
@@ -61,7 +52,7 @@ def process_airport_csv(input_csv, output_csv):
 
     with open(input_csv, mode='r', newline='', encoding='utf-8') as infile:
         reader = csv.DictReader(infile)
-        fieldnames = reader.fieldnames + ['Latitude', 'Longitude', 'Activation Year', 'Wiki URL', 'SV URL']
+        fieldnames = reader.fieldnames + ['Latitude', 'Longitude', 'Activation Year']
 
     
         with open(output_csv, mode='w', newline='', encoding='utf-8') as outfile:
@@ -72,18 +63,15 @@ def process_airport_csv(input_csv, output_csv):
                 for row in reader:
                     airport_code = row['Code']
                     airport_name = row['Airport']
+                    airport_url = row['URL']
                     
                     if airport_code:  # Only process if there's a valid code
-                        lat, lon, activation_year, sv_url = scrape_skyvector(airport_code, airport_name)
-
-                        wiki_url = f"https://en.wikipedia.org/wiki/{airport_name.replace(' ', '_')}"
-                        row['Wiki URL'] = wiki_url
+                        lat, lon, activation_year = scrape_skyvector(airport_url)
 
                         # Add the scraped data to the row
                         row['Latitude'] = lat
                         row['Longitude'] = lon
                         row['Activation Year'] = activation_year
-                        row['SV URL'] = sv_url
 
                     # Write the updated row to the output CSV
                     writer.writerow(row)
@@ -93,9 +81,9 @@ def process_airport_csv(input_csv, output_csv):
 if __name__ == "__main__":
 
     state_name = input("Enter the state name (e.g., Maryland, Minnesota): ")
-    input_csv = f'/Users/alliej/Desktop/bu/airports/example_data/{state_name}_airports.csv'
+    input_csv = f'/Users/alliej/Desktop/bu/airports/example_data/{state_name.lower()}_airports_skyv.csv'
 
-    output_csv = f'/Users/alliej/Desktop/bu/airports/example_data/{state_name}_coords.csv'
+    output_csv = f'/Users/alliej/Desktop/bu/airports/example_data/{state_name.lower()}_coords_skyv.csv'
 
     process_airport_csv(input_csv, output_csv)
 

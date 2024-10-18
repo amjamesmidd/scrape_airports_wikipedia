@@ -3,7 +3,6 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
-import re
 
 def generate_url(state):
     state_url = state.replace(' ', '_')
@@ -19,8 +18,6 @@ def extract_airports(state, filename):
         return
     
     soup = BeautifulSoup(response.text, 'html.parser')
-
-    
 
     with open(filename, mode = 'w', newline = '', encoding = 'utf-8') as file:
         writer = csv.writer(file)
